@@ -1,0 +1,135 @@
+#!/usr/bin/env php
+<?php
+/**
+ * @copyright Copyright (c) 2014 Carsten Brandt
+ * @license https://github.com/cebe/indent/blob/master/LICENSE
+ * @link https://github.com/cebe/indent#readme
+ */
+
+// Send all errors to stderr
+ini_set('display_errors', 'stderr');
+
+$src = [];
+$targetIndent = false;
+foreach($argv as $k => $arg) {
+	if ($k == 0) {
+		continue;
+	}
+	if ($arg[0] == '-') {
+		$arg = explode('=', $arg);
+		switch($arg[0]) {
+			case '--spaces':
+				$targetIndent = 'spaces';
+			break;
+			case '--tabs':
+				$targetIndent = 'tabs';
+			break;
+			case '-h':
+			case '--help':
+				echo "Indentation converter\n";
+				echo "---------------------\n\n";
+				echo "by Carsten Brandt <mail@cebe.cc>\n\n";
+				usage();
+			break;
+			default:
+				error("Unknown argument " . $arg[0], "usage");
+		}
+	} else {
+		$src[] = $arg;
+	}
+}
+
+if ($targetIndent === false) {
+	error('indentation flag --tabs or --spaces is missing.', "usage");
+}
+
+if (empty($src)) {
+	echo convertIndent(file_get_contents("php://stdin"), $targetIndent);
+} elseif (count($src) == 1) {
+	$file = reset($src);
+	if (!file_exists($file)) {
+		error("File does not exist:" . $file);
+	}
+	convertIndentFile($file, $targetIndent);
+} else {
+	foreach($src as $file) {
+		convertIndentFile($file, $targetIndent);
+	}
+}
+
+// functions
+
+/**
+ * Display usage information
+ */
+function usage() {
+	global $argv;
+	$cmd = $argv[0];
+	echo <<<EOF
+Usage:
+    $cmd [--tabs|--spaces] [file1 file2 ...]
+
+    --tabs    convert all indentation to tabs. Assuming 4 spaces tab length.
+    --spaces  convert all indentation to spaces.
+
+    --help    shows this usage information.
+
+    If no file is specified input will be read from STDIN.
+
+Examples:
+
+    TODO
+
+EOF;
+	exit(1);
+}
+
+/**
+ * Send custom error message to stderr
+ * @param $message string
+ * @param $callback mixed called before script exit
+ * @return void
+ */
+function error($message, $callback = null, $exit = true) {
+	$fe = fopen("php://stderr", "w");
+	fwrite($fe, "Error: " . $message . "\n");
+
+	if (is_callable($callback)) {
+		call_user_func($callback);
+	}
+
+	if ($exit) {
+		exit(1);
+	}
+}
+
+function convertIndentFile($file, $target)
+{
+	if (!file_exists($file)) {
+		error('File does not exist: ' . $file, null, false);
+	}
+	if (($content = file_get_contents()) !== false) {
+		file_put_contents(convertIndent($content, $target));
+	} else {
+		error('Error reading file: ' . $file, null, false);
+	}
+}
+
+function convertIndent($content, $target)
+{
+	$lines = preg_split('/(\r\n|\n|\r)/', $contents);
+	foreach($lines as $i => $line) {
+		if (preg_match('^\s+$', $line, $matches)) {
+			switch($target) {
+				case 'spaces':
+					$line = str_replace("\t", '    ', $matches[0]) . substr($line, strlen($matches[0]));
+				break;
+				case 'tabs':
+					$line = str_replace('    ', "\t", $matches[0]) . substr($line, strlen($matches[0]));
+				break;
+			}
+			$lines[$i] = $line;
+		}
+	}
+	return implode(PHP_EOL, $lines);
+}
