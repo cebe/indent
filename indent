@@ -117,7 +117,7 @@ function convertIndentFile($file, $target)
 
 function convertIndent($content, $target)
 {
-	$lines = preg_split('/(\r\n|\n|\r)/', $contents);
+	$lines = preg_split('/(\r\n|\n|\r)/', $content);
 	foreach($lines as $i => $line) {
 		if (preg_match('/^\s+/', $line, $matches)) {
 			switch($target) {
