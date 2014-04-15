@@ -108,8 +108,8 @@ function convertIndentFile($file, $target)
 	if (!file_exists($file)) {
 		error('File does not exist: ' . $file, null, false);
 	}
-	if (($content = file_get_contents()) !== false) {
-		file_put_contents(convertIndent($content, $target));
+	if (($content = file_get_contents($file)) !== false) {
+		file_put_contents($file, convertIndent($content, $target));
 	} else {
 		error('Error reading file: ' . $file, null, false);
 	}
@@ -119,7 +119,7 @@ function convertIndent($content, $target)
 {
 	$lines = preg_split('/(\r\n|\n|\r)/', $contents);
 	foreach($lines as $i => $line) {
-		if (preg_match('^\s+$', $line, $matches)) {
+		if (preg_match('/^\s+/', $line, $matches)) {
 			switch($target) {
 				case 'spaces':
 					$line = str_replace("\t", '    ', $matches[0]) . substr($line, strlen($matches[0]));
