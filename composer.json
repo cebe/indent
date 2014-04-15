@@ -1,0 +1,13 @@
+{
+    "name": "cebe/indent",
+    "description": "a small tool to convert text file indentation",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Carsten Brandt",
+            "email": "mail@cebe.cc"
+        }
+    ],
+    "require": {},
+	"bin": ["indent"]
+}
