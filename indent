@@ -88,7 +88,7 @@ function usage() {
 	$cmd = $argv[0];
 	echo <<<EOF
 Usage:
-    $cmd [--tabs|--spaces] [file1 file2 ...]
+    $cmd [--tabs|--spaces] [-r [--pattern=...]] [files or directories...]
 
     --tabs    convert all indentation to tabs. Assuming 4 spaces tab length.
     --spaces  convert all indentation to spaces.
