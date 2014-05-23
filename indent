@@ -11,6 +11,8 @@ ini_set('display_errors', 'stderr');
 
 $src = [];
 $targetIndent = false;
+$recursive = false;
+$pattern = '*.php';
 foreach($argv as $k => $arg) {
 	if ($k == 0) {
 		continue;
@@ -18,6 +20,12 @@ foreach($argv as $k => $arg) {
 	if ($arg[0] == '-') {
 		$arg = explode('=', $arg);
 		switch($arg[0]) {
+			case '-r':
+				$recursive = true;
+			break;
+			case '--pattern':
+				$pattern = $arg[1];
+			break;
 			case '--spaces':
 				$targetIndent = 'spaces';
 			break;
@@ -32,7 +40,7 @@ foreach($argv as $k => $arg) {
 				usage();
 			break;
 			default:
-				error("Unknown argument " . $arg[0], "usage");
+				error('Unknown argument ' . $arg[0], 'usage');
 		}
 	} else {
 		$src[] = $arg;
@@ -40,15 +48,28 @@ foreach($argv as $k => $arg) {
 }
 
 if ($targetIndent === false) {
-	error('indentation flag --tabs or --spaces is missing.', "usage");
+	error('indentation flag --tabs or --spaces is missing.', 'usage');
 }
 
 if (empty($src)) {
 	echo convertIndent(file_get_contents("php://stdin"), $targetIndent);
+} elseif ($recursive) {
+	$pattern = '/^' . implode('(.*)', array_map('preg_quote', explode('*', $pattern))) . '$/i';
+	foreach ($src as $dir) {
+		if (is_file($dir)) {
+			convertIndentFile($file, $targetIndent);
+		} elseif (is_dir($dir)) {
+			convertIndentDir($file, $pattern, $targetIndent);
+		} else {
+			error("File or directory does not exist: $dir");
+		}
+	}
 } elseif (count($src) == 1) {
 	$file = reset($src);
 	if (!file_exists($file)) {
-		error("File does not exist:" . $file);
+		error("File does not exist: $file");
+	} elseif (!is_file($file)) {
+		error("Argument is not a file: $file\nDid you forget the -r option?");
 	}
 	convertIndentFile($file, $targetIndent);
 } else {
@@ -72,13 +93,28 @@ Usage:
     --tabs    convert all indentation to tabs. Assuming 4 spaces tab length.
     --spaces  convert all indentation to spaces.
 
+    -r        recursively go over all directories given as argument and convert
+              files that match --pattern.
+
+    --pattern the pattern to match files for when using -r. Defaults to '*.php'.
+
     --help    shows this usage information.
 
     If no file is specified input will be read from STDIN.
 
 Examples:
 
-    TODO
+    Convert all *.php files in dir to tabs:
+
+        $cmd --tabs -r dir
+
+    Convert all *.md files in dir to spaces:
+
+        $cmd --spaces --pattern=*.md -r dir
+
+    Convert STDIN, which is the content of myfile.php to spaces and print the result to STDOUT:
+
+        cat myfile.php | $cmd --spaces
 
 EOF;
 	exit(1);
@@ -92,7 +128,7 @@ EOF;
  */
 function error($message, $callback = null, $exit = true) {
 	$fe = fopen("php://stderr", "w");
-	fwrite($fe, "Error: " . $message . "\n");
+	fwrite($fe, "Error: $message\n");
 
 	if (is_callable($callback)) {
 		call_user_func($callback);
@@ -106,12 +142,28 @@ function error($message, $callback = null, $exit = true) {
 function convertIndentFile($file, $target)
 {
 	if (!file_exists($file)) {
-		error('File does not exist: ' . $file, null, false);
+		error("File does not exist: $file", null, false);
 	}
 	if (($content = file_get_contents($file)) !== false) {
 		file_put_contents($file, convertIndent($content, $target));
 	} else {
-		error('Error reading file: ' . $file, null, false);
+		error("Error reading file: $file", null, false);
+	}
+}
+
+function convertIndentDir($dir, $pattern, $target)
+{
+	$dh = opendir($dir);
+	while($entry = readdir($dh)) {
+		if ($entry == '.' || $entry == '..' || !preg_match($pattern, $entry)) {
+			continue;
+		}
+		$path = $dir . '/' . $entry;
+		if (is_file($path)) {
+			convertIndentFile($path, $target);
+		} elseif (is_dir($path)) {
+			convertIndentDir($path, $pattern, $target);
+		}
 	}
 }
 
