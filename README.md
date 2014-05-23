@@ -11,7 +11,7 @@ Install via [composer](https://packagist.org/packages/cebe/indent) or just clone
 Usage
 -----
 
-    indent [--tabs|--spaces] [file1 file2 ...]
+    indent [--tabs|--spaces] [-r [--pattern=...]] [files or directories...]
 
     --tabs    convert all indentation to tabs. Assuming 4 spaces tab length.
     --spaces  convert all indentation to spaces.
