@@ -8,6 +8,14 @@ Installation
 
 Install via [composer](https://packagist.org/packages/cebe/indent) or just clone the repo.
 
+### Global installation
+
+Install it globally using:
+
+    composer global require cebe/indent
+
+Make sure your composer directory (`$HOME/.composer/vendor/bin`) is in your `PATH`.    
+
 Usage
 -----
 
