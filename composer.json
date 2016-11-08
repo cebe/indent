@@ -1,6 +1,6 @@
 {
     "name": "cebe/indent",
-    "description": "a small tool to convert text file indentation",
+    "description": "A small tool to convert text file indentation.",
     "license": "MIT",
     "authors": [
         {
@@ -9,5 +9,5 @@
         }
     ],
     "require": {},
-	"bin": ["indent"]
+    "bin": ["indent"]
 }
