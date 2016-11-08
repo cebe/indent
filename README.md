@@ -1,7 +1,7 @@
 indent
 ======
 
-A small tool to convert text file indentation.
+A small tool to convert (or enforce) text file indentation. Tabs to spaces or spaces to tabs.
 
 Installation
 ------------
