@@ -21,15 +21,17 @@ Usage
 
     indent [--tabs|--spaces] [-r [--pattern=...]] [files or directories...]
 
-    --tabs    convert all indentation to tabs. Assuming 4 spaces tab length.
-    --spaces  convert all indentation to spaces.
+    --tabs       convert all indentation to tabs. Assuming 4 spaces tab length.
+    --spaces     convert all indentation to spaces.
 
-    -r        recursively go over all directories given as argument and convert
-              files that match --pattern.
+    -r           recursively go over all directories given as argument and convert
+                 files that match --pattern.
 
-    --pattern the pattern to match files for when using -r. Defaults to '*.php'.
+    --pattern    the pattern to match files for when using -r. Defaults to '*.php'.
 
-    --help    shows this usage information.
+    --tabstop=N  define number of spaces N to replace a tab with. Defaults to 4.
+
+    --help       shows this usage information.
 
     If no file is specified input will be read from STDIN.
 
